@@ -82,7 +82,7 @@ jib {
     }
     to {
         image = "gcr.io/${System.getenv("PROJECT_ID") ?: "starter-361011"}/starter-server:${scmVersion.version}".toString()
-        print(image.concat(" "))
+        print(image.concat(" aniket"))
     }
     container {
         creationTime = 'USE_CURRENT_TIMESTAMP'
