@@ -51,12 +51,8 @@ jobs:
           release=$(./gradlew cR -Prelease.disableSnapshotsCheck | grep "name =" | awk '{print $3}')
           echo "::set-output name=release::$release"
       #        ./gradlew cR -Prelease.disableSnapshotsCheck
-      - name: Build & push Docker image
-        uses: mr-smithers-excellent/docker-build-push@v6
-        with:
-          image: aniketcodeprism/github-actions
-          tags: v1, latest
-          registry: docker.io
-          dockerfile: Dockerfile.ci
-          username: aniketcodeprism
-          password: UQj@t8.aN@2aqbg
+      - name: Build Docker Image
+        id: docker-build-image
+        run: |
+          cd starter-server/
+          ../gradlew jibDockerBuild
