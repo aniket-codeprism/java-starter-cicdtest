@@ -82,7 +82,6 @@ jib {
     }
     to {
         image = "gcr.io/${System.getenv("PROJECT_ID") ?: "starter-361011"}/starter-server:${scmVersion.version}".toString()
-        print(image.concat(" aniket"))
     }
     container {
         creationTime = 'USE_CURRENT_TIMESTAMP'
@@ -93,5 +92,6 @@ jib {
                 "-Dcom.google.cdbg.version=${scmVersion.version}".toString()
         ]
         mainClass = 'com.example.starterserver.StarterServerApplication'
+
     }
 }
