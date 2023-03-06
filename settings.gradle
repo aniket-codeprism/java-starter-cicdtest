@@ -1,0 +1,4 @@
+rootProject.name = 'java-starter'
+include 'starter-api'
+include 'starter-server'
+

@@ -1,0 +1,27 @@
+syntax = 'proto3';
+
+package unifiedplatform.Starter;
+import "google/api/annotations.proto";
+
+option java_package = "org.heartfulness.unifiedplatform.Starter";
+option java_multiple_files = true;
+
+message TestResponse{
+  string result = 1;
+}
+message Empty{
+}
+
+service StarterService{
+  //Bloom rpc test call
+  rpc bloomRpcTest(Empty) returns (TestResponse){};
+  //Post man rpc test call, where we can call or access it from postman.
+  rpc postManGetMethodTest(Empty) returns (TestResponse){
+    option (google.api.http) = {
+      get: "/postManGetMethodTest",
+      body: "*"
+    };
+  };
+  //We can call below rpc without authentication. This authorization skip was configured in endpoint.yml
+  rpc espSkipTest(Empty) returns (TestResponse){};
+}

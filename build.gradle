@@ -1,0 +1,89 @@
+//plugins {
+//    id 'java'
+//}
+//
+//group 'org.example'
+//version '1.0-SNAPSHOT'
+//
+//repositories {
+//    mavenCentral()
+//}
+//
+//dependencies {
+//    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+//    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+//}
+//
+//test {
+//    useJUnitPlatform()
+//}
+
+//plugins {
+//    id 'java'
+//}
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.14.0'
+}
+
+scmVersion {
+    // ...
+    checks {
+        uncommittedChanges = false
+        aheadOfRemote = true
+        snapshotDependencies = false
+    }
+}
+
+allprojects {
+    project.version = scmVersion.version
+}
+
+subprojects {
+    group 'org.example'
+    version '0.0.1'
+    buildscript {
+        ext {
+            grpcVersion = '1.48.0'
+            springBootVersion = '2.1.1.RELEASE'
+            junitVersion = '4.12'
+        }
+        repositories {
+            mavenCentral()
+            maven { url 'http://repo.spring.io/plugins-release'
+                allowInsecureProtocol = true }
+            maven { url "https://plugins.gradle.org/m2/" }
+        }
+        dependencies {
+            classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.13'
+            classpath "pl.allegro.tech.build:axion-release-plugin:1.14.0"
+        }
+    }
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'pl.allegro.tech.build.axion-release'
+
+    sourceSets.main.java.srcDir new File(buildDir, 'generated/source/proto/main/grpc')
+    sourceSets.main.java.srcDir new File(buildDir, 'generated/source/proto/main/java')
+
+    repositories {
+        maven {
+            url 'https://maven-central-asia.storage-download.googleapis.com/repos/central/data/'
+        }
+
+        mavenCentral()
+
+        maven {
+            url 'https://repo.spring.io/libs-milestone'
+        }
+
+//        maven {
+//            url 'http://buildrepo.whispersmessages.in'
+//        }
+    }
+
+    dependencies {
+        implementation "io.grpc:grpc-auth:${grpcVersion}"
+        implementation "com.google.auth:google-auth-library-credentials:0.9.0"
+        implementation "com.google.auth:google-auth-library-oauth2-http:0.9.0"
+    }
+}

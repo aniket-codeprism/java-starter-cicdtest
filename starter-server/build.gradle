@@ -1,0 +1,96 @@
+plugins {
+    id 'org.springframework.boot' version '2.1.1.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'com.google.cloud.tools.jib' version '2.1.0'
+    id 'java'
+    id 'idea'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+repositories {
+    // required for hazelcast-kubernetes:1.1.1-SNAPSHOT
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
+}
+
+ext {
+    println("StarterService ${scmVersion.version}")
+}
+
+scmVersion {
+    tag {
+        prefix = 'server-'
+    }
+}
+
+project.version = scmVersion.version
+
+springBoot {
+    // This statement tells the Gradle Spring Boot plugin
+    // to generate a file
+    // build/resources/main/META-INF/build-info.properties
+    // that is picked up by Spring Boot to display
+    // via /info endpoint.
+    buildInfo {
+        // Generate extra build info.
+        properties {
+            additional = [
+                    'by'                 : System.properties['user.name'],
+                    operatingSystem      : "${System.properties['os.name']} (${System.properties['os.version']})",
+                    continuousIntegration: System.getenv('CI') ? true : false,
+                    machine              : InetAddress.localHost.hostName,
+                    // Override name property
+                    name                 : 'starter-server'
+            ]
+        }
+    }
+}
+
+configurations{
+    all {
+        // check for updates every build - for commit
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+dependencies {
+    implementation project(':starter-api')
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'io.github.lognet:grpc-spring-boot-starter:4.6.0'
+    implementation("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+}
+test {
+    useJUnitPlatform()
+}
+
+jib {
+    from {
+        image = 'adoptopenjdk/openjdk11'
+    }
+    to {
+        image = "gcr.io/${System.getenv("PROJECT_ID") ?: "starter-361011"}/starter-server:${scmVersion.version}".toString()
+    }
+    container {
+        creationTime = 'USE_CURRENT_TIMESTAMP'
+        ports = ['50071', '50072']
+        jvmFlags = [
+                '-Djava.security.egd=file:/dev/urandom',
+                '-Dcom.google.cdbg.module=starter-server',
+                "-Dcom.google.cdbg.version=${scmVersion.version}".toString()
+        ]
+        mainClass = 'com.example.starterserver.StarterServerApplication'
+    }
+}
