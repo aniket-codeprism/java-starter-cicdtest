@@ -19,7 +19,7 @@ permissions:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -51,12 +51,30 @@ jobs:
           release=$(./gradlew cR -Prelease.disableSnapshotsCheck | grep "name =" | awk '{print $3}')
           echo "::set-output name=release::$release"
       #        ./gradlew cR -Prelease.disableSnapshotsCheck
-#      - name: Build & push Docker image
-#        uses: mr-smithers-excellent/docker-build-push@v6
-#        with:
-#          image: aniketcodeprism/github-actions
-#          tags: v1, latest
-#          registry: docker.io
-#          dockerfile: Dockerfile.ci
-#          username: aniketcodeprism
-#          password: UQj@t8.aN@2aqbg
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          #          image: starter-361011/starter-server
+          #          registry: gcr.io
+          push: true
+          tags: ${{ steps.version-info.outputs.version }}-${{ steps.version-info.outputs.release }}
+          build-args: |
+            VERSION=${{ steps.version-info.outputs.version }}
+            RELEASE=${{ steps.version-info.outputs.release }}
+          secrets: |
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+    #      - uses: mr-smithers-excellent/docker-build-push@v5
+    #        with:
+    #          image: starter-361011/starter-server
+    #          registry: gcr.io
+    #          username: _json_key
+    #          password: ${{ secrets.DOCKER_PASSWORD }}
+    #      - name: Gradle jibDockerBuild
+    #        run: ./gradlew jibDockerbuild
+
+    # - name: Build with Gradle
+    #   uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+    #   with:
+    #     arguments: build
