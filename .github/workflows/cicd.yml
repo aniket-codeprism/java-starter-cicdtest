@@ -1,0 +1,80 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Gradle createVersion
+        id: version-cv
+        run: |
+          version=$(./gradlew cV | grep "version =" | awk '{print $3}')
+          echo "::set-output name=version::$version"
+      #        ./gradlew cV
+      - name: Gradle createVersion in Starter-api
+        run: |
+          cd starter-api/
+          ../gradlew cV
+      - name: Gradle createVersion in Starter-server
+        run: |
+          cd starter-server/
+          ../gradlew cV
+      - name: Gradle createRelease
+        id: release-cr
+        run: |
+          release=$(./gradlew cR -Prelease.disableSnapshotsCheck | grep "name =" | awk '{print $3}')
+          echo "::set-output name=release::$release"
+      #        ./gradlew cR -Prelease.disableSnapshotsCheck
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          #          image: starter-361011/starter-server
+          #          registry: gcr.io
+          push: true
+          tags: your-docker-image-tag:${{ steps.version-info.outputs.version }}-${{ steps.version-info.outputs.release }}
+          build-args: |
+            VERSION=${{ steps.version-info.outputs.version }}
+            RELEASE=${{ steps.version-info.outputs.release }}
+          secrets: |
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}
+    #      - uses: mr-smithers-excellent/docker-build-push@v5
+    #        with:
+    #          image: starter-361011/starter-server
+    #          registry: gcr.io
+    #          username: _json_key
+    #          password: ${{ secrets.DOCKER_PASSWORD }}
+    #      - name: Gradle jibDockerBuild
+    #        run: ./gradlew jibDockerbuild
+
+    # - name: Build with Gradle
+    #   uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+    #   with:
+    #     arguments: build
