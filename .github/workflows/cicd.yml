@@ -53,6 +53,6 @@ jobs:
       #        ./gradlew cR -Prelease.disableSnapshotsCheck
       - name: Build Docker Image
         id: docker-build-image
-        run: |
+        run:
           cd starter-server/
           ../gradlew jibDockerBuild
