@@ -66,4 +66,4 @@ jobs:
       - name : Push Docker Image
         id: push-docker-image
         run: |
-          docker push aniketcodeprism/github-actions
+          docker push aniketcodeprism/github-actions:gcr.io/playamv-8fef2/starter-server:0.1.0
