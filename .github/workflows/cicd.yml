@@ -63,3 +63,7 @@ jobs:
         run: |
           cd starter-server/
           ../gradlew jibDockerBuild
+      - name : Push Docker Image
+        id: push-docker-image
+        run: |
+          docker push aniketcodeprism/github-actions
