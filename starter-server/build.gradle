@@ -81,7 +81,7 @@ jib {
         image = 'adoptopenjdk/openjdk11'
     }
     to {
-        image = "gcr.io/${System.getenv("PROJECT_ID") ?: "playamv-8fef2"}/starter-server:${scmVersion.version}".toString()
+        image = "gcr.io/${System.getenv("PROJECT_ID") ?: "starter-361011"}/starter-server:${scmVersion.version}".toString()
         print(image.concat(" aniket"))
     }
     container {
